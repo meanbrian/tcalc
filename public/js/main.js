@@ -9,6 +9,7 @@ import { renderClips } from './clips.js';
 import { renderTime } from './time.js';
 import { renderSettings, renderRatePage, renderAppearancePage, renderAboutPage } from './settings.js';
 import { renderHistory } from './history.js';
+import { renderPrivacyPage } from './privacy.js';
 import { renderDev, renderTraffic, renderEvents } from './dev.js';
 
 // ---------- tabs ----------
@@ -31,7 +32,7 @@ function drawTabs(current) {
 // ---------- router ----------
 const PAGES = {
   '': 'calc', 'offset': 'offset', 'convert': 'convert', 'clips': 'clips', 'time': 'time', 'settings': renderSettings,
-  'settings/rate': renderRatePage, 'settings/appearance': renderAppearancePage, 'settings/history': renderHistory, 'settings/about': renderAboutPage,
+  'settings/rate': renderRatePage, 'settings/appearance': renderAppearancePage, 'settings/history': renderHistory, 'settings/about': renderAboutPage, 'settings/privacy': renderPrivacyPage,
   'dev': renderDev, 'dev/traffic': renderTraffic, 'dev/events': renderEvents,
 };
 function route() {

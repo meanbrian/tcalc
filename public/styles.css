@@ -146,6 +146,9 @@ input[type=datetime-local]::-webkit-date-and-time-value { text-align: left; }
 .group { background: var(--surface); border-radius: var(--r-group); box-shadow: var(--shadow); overflow: hidden; margin: 8px 0; }
 .group.text { padding: 4px 18px; }
 .group.text p { margin: 12px 0; font-size: 15px; line-height: 1.5; }
+.group.text h3 { margin: 16px 0 -6px; font-size: 15px; font-weight: 600; }
+main.plain { padding-bottom: 40px; }
+.small { font-size: 13px; }
 .group .row, .group .pick { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 50px; padding: 6px 14px 6px 16px; border: 0; border-bottom: 1px solid var(--line); background: none; color: var(--ink); text-decoration: none; text-align: left; cursor: pointer; flex-wrap: nowrap; }
 .group .row:last-child, .group .pick:last-child { border-bottom: 0; }
 .group .row.center { justify-content: center; font-weight: 600; }

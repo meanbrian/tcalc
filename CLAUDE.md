@@ -40,6 +40,7 @@ Plain JavaScript modules, no build step. `index.html` loads `js/main.js`, which 
 | `js/time.js` | Time tab (no frame rate): decimal value in any unit → breakdown + totals, between two dates, since/until (live), date ± duration, unix epoch |
 | `js/timespan.js` | Pure time maths: units ↔ ms, `breakdown`, `calendarDiff` (clamped month stepping), `addToDate`, epoch, formatting (tests in `test/`) |
 | `js/settings.js` | Settings (house style) + pages: Frame Rate, Appearance, About |
+| `js/privacy.js` | The privacy text (once) + Settings › Privacy page; `privacy-static.js` draws `/privacy.html` (linked from Closed / Maintenance) |
 | `js/dev.js` | `#/dev`: sign-in, Closed / Maintenance / message, feature switches, Traffic, Events, Sign Out |
 | `js/icons.js` | All SVG icons |
 | `styles.css` | All styles (light/dark tokens at the top, indigo accent) |
