@@ -1,0 +1,68 @@
+/* glass.css — meanbrian Liquid Glass for tcalc: the floating layer only (tab bar, round ‹ button, toast).
+   Content stays solid (styles.css). Tokens from the design system's theme block. */
+
+/* ---------- tokens ---------- */
+:root {
+  --glass: rgba(255, 255, 255, .66); --glass-hi: rgba(255, 255, 255, .95);
+  --glass-sh: 0 8px 28px rgba(0, 0, 0, .14), 0 1px 3px rgba(0, 0, 0, .08);
+  --glass-blur: blur(24px) saturate(180%); --pill: rgba(0, 0, 0, .07);
+  --r-bar: 32px; --btn: 44px; --ease: cubic-bezier(.32, .72, 0, 1);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --glass: rgba(120, 120, 128, .26); --glass-hi: rgba(255, 255, 255, .28); --glass-sh: 0 8px 28px rgba(0, 0, 0, .5); --pill: rgba(255, 255, 255, .14); }
+}
+:root[data-theme="dark"] { --glass: rgba(120, 120, 128, .26); --glass-hi: rgba(255, 255, 255, .28); --glass-sh: 0 8px 28px rgba(0, 0, 0, .5); --pill: rgba(255, 255, 255, .14); }
+
+/* the glass recipe */
+.glass, .gbtn, .tabbar, #toast {
+  background: var(--glass); -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur);
+  box-shadow: inset 0 1px 0 var(--glass-hi), inset 0 -1px 0 rgba(255, 255, 255, .05), var(--glass-sh);
+}
+
+/* ---------- round glass button: ‹ ---------- */
+.gbtn {
+  width: var(--btn); height: var(--btn); border-radius: 50%; border: 0; padding: 0; flex: none;
+  display: grid; place-items: center; color: var(--ink); cursor: pointer; text-decoration: none; transition: transform .15s;
+}
+.gbtn svg { width: 20px; height: 20px; }
+.gbtn:active { transform: scale(.94); }
+
+/* ---------- tab bar: a floating capsule ---------- */
+.tabbar {
+  position: fixed; z-index: 20; display: flex; padding: 6px; border-radius: var(--r-bar);
+  left: max(14px, calc(50% - 260px)); right: max(14px, calc(50% - 260px)); bottom: calc(10px + env(safe-area-inset-bottom));
+}
+.tab {
+  position: relative; isolation: isolate; flex: 1; display: grid; justify-items: center; gap: 2px; padding: 4px 0;
+  border: 0; background: none; color: var(--ink); text-decoration: none; cursor: pointer; font: inherit;
+}
+.tab::before { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: 22px; transition: background-color .3s var(--ease); }
+.tab.on::before { background: var(--pill); }
+.tab-ic { display: grid; place-items: center; height: 24px; }
+.tab-ic svg { width: 24px; height: 24px; }
+.tab-label { font-size: 10.5px; line-height: 13px; font-weight: 600; }
+.tab.on .tab-ic, .tab.on .tab-label { color: var(--accent-fg); }
+/* scroll edge: content fades out under the floating bar */
+body::after {
+  content: ""; position: fixed; left: 0; right: 0; bottom: 0; z-index: 15; pointer-events: none;
+  height: calc(96px + env(safe-area-inset-bottom));
+  background: linear-gradient(to bottom, transparent, color-mix(in srgb, var(--bg) 85%, transparent) 60%);
+}
+html.kb-open .tabbar, html.kb-open body::after { display: none; }
+
+/* ---------- toast: a glass capsule above the bar ---------- */
+#toast {
+  position: fixed; z-index: 60; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom)); transform: translate(-50%, 8px);
+  max-width: calc(100vw - 32px); color: var(--ink); padding: 11px 18px; border-radius: 999px; font-size: 15px; font-weight: 600;
+  opacity: 0; pointer-events: none; transition: opacity .2s, transform .3s var(--ease); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+#toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+/* ---------- accessibility ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .gbtn, #toast, .tab::before { transition: opacity .2s !important; }
+  main.slide-in { animation: none; }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .glass, .gbtn, .tabbar, #toast { -webkit-backdrop-filter: none; backdrop-filter: none; background: var(--surface); }
+}

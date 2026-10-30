@@ -1,0 +1,24 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "tcalc",
+  "main": "src/index.js",
+  "compatibility_date": "2026-10-01",
+  "routes": [{ "pattern": "tcalc.meanbrian.com", "custom_domain": true }],
+  "workers_dev": false,
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/", "/index.html", "/api/*", "/auth/*"]
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "tcalc",
+      "database_id": "f187e334-a0f0-43b6-8b24-8515b07edffe",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "triggers": { "crons": ["41 7 * * *"] },
+  "observability": { "enabled": true }
+}

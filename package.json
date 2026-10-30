@@ -1,0 +1,21 @@
+{
+  "name": "tcalc",
+  "version": "1.0.0",
+  "description": "Timecode and clip time calculator for editors",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "test": "node --test test/*.test.js",
+    "db:migrate": "wrangler d1 migrations apply tcalc --remote",
+    "db:migrate:local": "wrangler d1 migrations apply tcalc --local"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/meanbrian/tcalc.git"
+  },
+  "devDependencies": {
+    "wrangler": "^4.151.3"
+  }
+}
