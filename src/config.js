@@ -2,7 +2,7 @@
 // getConfig() is read on every page view; setConfig() only from the Dev tab.
 import { cleanText, cleanBool } from './util.js';
 
-const FEATURES = ['calc', 'offset', 'convert', 'clips', 'history'];
+const FEATURES = ['calc', 'offset', 'convert', 'clips', 'time', 'history'];
 const DEFAULTS = { closed: false, maintenance: false, message: '', features: Object.fromEntries(FEATURES.map((f) => [f, true])) };
 
 async function getConfig(env) {

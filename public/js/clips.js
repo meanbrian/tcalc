@@ -32,7 +32,7 @@ function renderClips() {
     <div class="pair">${tcInput('inTc', c.inTc, { label: 'In' })}${tcInput('outTc', c.outTc, { label: 'Out' })}</div>
     ${numInput('handle', c.handle, { label: 'Handle frames each side', min: 0 })}
     ${hand ? resultCard(`${tc(hand.in)} – ${tc(hand.out)}`, [`${tc(hand.padded)} with handles (${fmtFrames(hand.padded)} fr)`, `${tc(hand.len)} without (${fmtFrames(hand.len)} fr)`, fmtSec(framesToSeconds(hand.padded, r))], { label: 'With handles', wide: true }) : ''}`;
-  const root = page({ title: 'Clips', body });
+  const root = page({ title: 'Clips', body, gear: true });
   bindRateBar(root, renderClips);
   bindCopy(root);
   bindTcInputs(root, (name, input) => { c[name] = input.classList.contains('tcin') ? tcDigits(input) : input.value; update(name); });

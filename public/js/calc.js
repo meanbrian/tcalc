@@ -22,7 +22,7 @@ function renderCalc() {
       <span class="t-fr">${fmtFrames(e.frames)} fr</span><button type="button" class="iconbtn" data-del="${i}" aria-label="Remove">✕</button></li>`).join('')}</ul>
       <div class="row end"><button type="button" class="link" id="clear">Clear tape</button></div>`
     : '<p class="footnote">Type a timecode and tap + or −. The total keeps running; tap it to copy.</p>'}`;
-  const root = page({ title: 'Calculator', body });
+  const root = page({ title: 'Calculator', body, gear: true });
   bindRateBar(root, renderCalc);
   bindCopy(root);
   bindTcInputs(root, (name, input) => { c.entry = c.mode === 'tc' ? tcDigits(input) : input.value; });

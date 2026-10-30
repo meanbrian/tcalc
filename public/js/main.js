@@ -1,11 +1,12 @@
-// main.js — START HERE. Hash router (#/, #/offset, #/convert, #/clips, #/settings/*, #/dev/*), the tab bar
-// (features switched off in the Dev tab are left out), boot: prefs, theme, /api/config, dev check, service worker.
+// main.js — START HERE. Hash router (#/, #/offset, #/convert, #/clips, #/time, #/settings/*, #/dev/*), the tab bar
+// (features switched off in the Dev tab are left out; Settings is the ⚙ at the top), boot: prefs, theme, /api/config, dev check, SW.
 import { S, $, $$, app, api, applyTheme, localSet } from './core.js';
 import { I } from './icons.js';
 import { renderCalc } from './calc.js';
 import { renderOffset } from './offset.js';
 import { renderConvert } from './convert.js';
 import { renderClips } from './clips.js';
+import { renderTime } from './time.js';
 import { renderSettings, renderRatePage, renderAppearancePage, renderAboutPage } from './settings.js';
 import { renderHistory } from './history.js';
 import { renderDev, renderTraffic, renderEvents } from './dev.js';
@@ -16,9 +17,9 @@ const TABS = [
   { id: 'offset', href: '#/offset', name: 'Offset', icon: I.offset, render: renderOffset },
   { id: 'convert', href: '#/convert', name: 'Convert', icon: I.convert, render: renderConvert },
   { id: 'clips', href: '#/clips', name: 'Clips', icon: I.clips, render: renderClips },
-  { id: 'settings', href: '#/settings', name: 'Settings', icon: I.settings, render: renderSettings },
+  { id: 'time', href: '#/time', name: 'Time', icon: I.time, render: renderTime },
 ];
-const onTabs = () => TABS.filter((t) => t.id === 'settings' || S.features[t.id] !== false);
+const onTabs = () => TABS.filter((t) => S.features[t.id] !== false);
 
 let bar = null;
 function drawTabs(current) {
@@ -29,7 +30,7 @@ function drawTabs(current) {
 
 // ---------- router ----------
 const PAGES = {
-  '': 'calc', 'offset': 'offset', 'convert': 'convert', 'clips': 'clips', 'settings': 'settings',
+  '': 'calc', 'offset': 'offset', 'convert': 'convert', 'clips': 'clips', 'time': 'time', 'settings': renderSettings,
   'settings/rate': renderRatePage, 'settings/appearance': renderAppearancePage, 'settings/history': renderHistory, 'settings/about': renderAboutPage,
   'dev': renderDev, 'dev/traffic': renderTraffic, 'dev/events': renderEvents,
 };
@@ -37,10 +38,10 @@ function route() {
   S.nav++;
   const path = location.hash.replace(/^#\/?/, '').replace(/\/+$/, '');
   const target = PAGES[path] ?? 'calc';
-  const tabId = typeof target === 'string' ? target : path.startsWith('dev') ? 'settings' : path.split('/')[0];
-  const tab = onTabs().find((t) => t.id === tabId) || onTabs()[0];
-  drawTabs(tab.id);
-  if (typeof target === 'string') { if (tab.id !== target) { location.hash = tab.href; return; } tab.render(); }
+  // Settings and dev pages sit outside the tab bar (⚙ at the top of every tab), so no tab is lit there.
+  const tab = typeof target === 'string' ? onTabs().find((t) => t.id === target) || onTabs()[0] : null;
+  drawTabs(tab?.id);
+  if (tab) { if (tab.id !== target) { location.hash = tab.href; return; } S.lastTab = tab.href; tab.render(); }
   else target();
   scrollTo(0, 0);
 }

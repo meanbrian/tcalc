@@ -28,7 +28,7 @@ Plain JavaScript modules, no build step. `index.html` loads `js/main.js`, which 
 
 | File | Screen / job |
 | --- | --- |
-| `js/main.js` | Start here: hash router, tab bar (hides switched-off features), boot (`/api/config`, `/auth/me`), SW |
+| `js/main.js` | Start here: hash router, tab bar (Calc · Offset · Convert · Clips · Time; hides switched-off features; Settings is the ⚙ at the top), boot (`/api/config`, `/auth/me`), SW |
 | `js/core.js` | Shared: state `S`, prefs (localStorage `tcalc.prefs`), `rate()`, `api()`, `toast`, `copyText`, theme, `rateBar`, `page`, `resultCard`, `APP_VERSION` |
 | `js/timecode.js` | Pure maths: rates, parse, drop-frame, frames ↔ tc ↔ seconds, conversions, formatting (tests in `test/`) |
 | `js/field.js` | Timecode entry field (digits shift in from the right) + number field; `bindTcInputs`, `tcFrames` |
@@ -37,6 +37,8 @@ Plain JavaScript modules, no build step. `index.html` loads `js/main.js`, which 
 | `js/offset.js` | Offset tab: B − A as ± frames / seconds / tc, apply the offset to a third tc |
 | `js/convert.js` | Convert tab: frames / seconds / clock, speed change, every other rate (same frames or same time) |
 | `js/clips.js` | Clips tab: how many fit, total runtime of a pasted list, handles |
+| `js/time.js` | Time tab (no frame rate): decimal value in any unit → breakdown + totals, between two dates, since/until (live), date ± duration, unix epoch |
+| `js/timespan.js` | Pure time maths: units ↔ ms, `breakdown`, `calendarDiff` (clamped month stepping), `addToDate`, epoch, formatting (tests in `test/`) |
 | `js/settings.js` | Settings (house style) + pages: Frame Rate, Appearance, About |
 | `js/dev.js` | `#/dev`: sign-in, Closed / Maintenance / message, feature switches, Traffic, Events, Sign Out |
 | `js/icons.js` | All SVG icons |
@@ -68,5 +70,5 @@ Plain JavaScript modules, no build step. `index.html` loads `js/main.js`, which 
 - Never enter secrets in forms; he sets `DEV_USERNAME` / `DEV_SETUP_CODE` in Cloudflare.
 - Keep files small (~300 lines); update this map in the same commit as any new file or route.
 - Security exceptions (playbook §11.1): none.
-- Maths lives only in `timecode.js`; screens format, they don't calculate. Add a test when touching it.
+- Maths lives only in `timecode.js` (frames) and `timespan.js` (calendar time); screens format, they don't calculate. Add a test when touching them.
 - Public app, so nothing a visitor types ever reaches the server; keep it that way.

@@ -18,7 +18,7 @@ function renderOffset() {
     <h2 class="section-name">Apply the same offset</h2>
     ${tcInput('c', o.c, { label: 'Another clip at' })}
     ${have && c !== null ? resultCard(tc(c + d), [`${tc(c)} ${d < 0 ? '−' : '+'} ${fmtFrames(Math.abs(d))} fr`], { label: 'Moves to' }) : ''}`;
-  const root = page({ title: 'Offset', body });
+  const root = page({ title: 'Offset', body, gear: true });
   bindRateBar(root, renderOffset);
   bindCopy(root);
   bindTcInputs(root, (name, input) => { o[name] = tcDigits(input); update(); });

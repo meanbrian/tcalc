@@ -3,7 +3,7 @@
 import { RATES, rateById } from './timecode.js';
 import { I } from './icons.js';
 
-const APP_VERSION = '1.0.0'; // bump with each release; shown at the bottom of Settings
+const APP_VERSION = '1.1.0'; // bump with each release; shown at the bottom of Settings
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
@@ -17,14 +17,16 @@ function localSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } ca
 const DEFAULT_PREFS = { rate: '23.976', custom: 30, wrap24: true, history: true, theme: 'auto' };
 const S = {
   nav: 0,
+  lastTab: '#/', // where ‹ on Settings goes back to
   prefs: { ...DEFAULT_PREFS, ...localGet('tcalc.prefs', {}) },
-  features: localGet('tcalc.features', { calc: true, offset: true, convert: true, clips: true, history: true }),
+  features: localGet('tcalc.features', { calc: true, offset: true, convert: true, clips: true, time: true, history: true }),
   dev: false,
   // each screen keeps what was typed so tabs don't lose work
   calc: { tape: [], entry: '', mode: 'tc' },
   offset: { a: '', b: '', c: '' },
   convert: { tc: '', mode: 'frames', speed: 50 },
   clips: { clip: '', total: '', list: '', inTc: '', outTc: '', handle: 12 },
+  time: { value: '', unit: 'h', a: '', b: '', since: '', base: '', plus: '', plusUnit: 'd', sign: '+', epoch: '' },
 };
 const savePrefs = () => localSet('tcalc.prefs', S.prefs);
 const rate = () => rateById(S.prefs.rate, S.prefs.custom);
@@ -91,10 +93,11 @@ function bindRateBar(root, redraw) {
 }
 
 // ---------- page shell ----------
-// A calculating tab: large title, optional subtitle, body. Settings pages add a glass ‹ back button.
-function page({ title, sub = '', body, back = null, cls = '' }) {
+// A tab: large title, optional subtitle, body, a glass ⚙ to Settings (gear). Settings pages add a glass ‹ back button.
+function page({ title, sub = '', body, back = null, gear = false, cls = '' }) {
+  const bar = back ? `<a class="gbtn" href="${back}" aria-label="Back">${I.back}</a>` : gear ? `<span></span><a class="gbtn" href="#/settings" aria-label="Settings">${I.settings}</a>` : '';
   app.innerHTML = `<main class="${cls}">
-    <div class="pagetop">${back ? `<div class="pt-bar"><a class="gbtn" href="${back}" aria-label="Back">${I.back}</a></div>` : ''}
+    <div class="pagetop">${bar ? `<div class="pt-bar">${bar}</div>` : ''}
       <h1 class="large-title">${esc(title)}</h1>${sub ? `<p class="sub">${esc(sub)}</p>` : ''}</div>
     ${body}</main>`;
   if (back) $('main').classList.add('slide-in');

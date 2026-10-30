@@ -40,7 +40,7 @@ a { color: var(--blue); }
 /* ---------- shell ---------- */
 main { max-width: 640px; margin: 0 auto; padding: calc(env(safe-area-inset-top) + 8px) 16px 0; }
 .pagetop { margin-bottom: 10px; }
-.pt-bar { display: flex; align-items: center; min-height: 44px; }
+.pt-bar { display: flex; align-items: center; justify-content: space-between; min-height: 44px; }
 .large-title { font: 700 34px/41px var(--code); letter-spacing: .2px; margin: 6px 0 2px; }
 .sub { margin: 0; color: var(--ink-2); font-size: 15px; }
 .section-name { font: 400 13px/18px var(--body); letter-spacing: .26px; text-transform: uppercase; color: var(--ink-2); margin: 24px 16px 7px; }
@@ -89,6 +89,16 @@ textarea { min-height: 120px; resize: vertical; font-family: var(--mono); font-s
 .seg { display: flex; border-radius: 12px; overflow: hidden; background: var(--raised); padding: 3px; gap: 3px; margin: 12px 0 2px; }
 .seg button { flex: 1; border: 0; background: none; padding: 8px; font-weight: 600; font-size: 15px; cursor: pointer; min-height: 38px; color: var(--ink-2); border-radius: 9px; }
 .seg button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: 0 2px 8px rgba(0, 0, 0, .12); }
+
+/* ---------- time tab ---------- */
+.unitrow { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.unitrow.three { grid-template-columns: 96px 1fr 1fr; align-items: end; }
+.unitrow .seg.sign { margin: 0 0 10px; min-height: 56px; }
+.unitrow .seg.sign button { font: 600 24px/1 var(--code); }
+.unitsel, input[type=datetime-local] { width: 100%; border: 1px solid transparent; background: var(--raised); border-radius: 14px; padding: 11px 14px; min-height: 56px; color: var(--ink); font-size: 17px; font-weight: 600; appearance: none; -webkit-appearance: none; }
+input[type=datetime-local] { font-variant-numeric: tabular-nums; min-width: 0; }
+input[type=datetime-local]::-webkit-date-and-time-value { text-align: left; }
+@media (max-width: 380px) { .unitrow.three { grid-template-columns: 72px 1fr; } .unitrow.three label:last-child { grid-column: 1 / -1; } }
 
 /* ---------- buttons ---------- */
 .btn {

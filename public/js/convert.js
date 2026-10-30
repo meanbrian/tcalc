@@ -32,7 +32,7 @@ function renderConvert() {
     <p class="footnote">${v.how === 'time' ? 'The clip keeps its real length; frames are re-counted at the new rate.' : 'Every frame is kept (conform / re-time); the clip gets longer or shorter.'}</p>
     <ul class="list">${others.map((x) => { const n = v.how === 'time' ? sameTime(frames, r, x) : frames; return `<li class="conv" data-copy="${tcAt(n, x)}" role="button" tabindex="0">
       <span class="c-rate">${x.label}</span><span class="c-tc">${tcAt(n, x)}</span><span class="c-sub">${fmtFrames(n)} fr · ${fmtSec(framesToSeconds(n, x))}</span></li>`; }).join('')}</ul>`}`;
-  const root = page({ title: 'Convert', body });
+  const root = page({ title: 'Convert', body, gear: true });
   bindRateBar(root, renderConvert);
   bindCopy(root);
   bindTcInputs(root, (name, input) => {

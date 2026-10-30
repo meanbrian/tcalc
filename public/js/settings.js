@@ -26,7 +26,7 @@ function renderSettings() {
     </div>
     <div class="group">${row('#/settings/about', 'blue', I.info, 'About tcalc')}${S.dev ? row('#/dev', 'red', I.wrench, 'Developer') : ''}</div>
     <p class="version">tcalc ${esc(APP_VERSION)} · made by meanbrian</p>`;
-  const root = page({ title: 'Settings', body });
+  const root = page({ title: 'Settings', body, back: S.lastTab || '#/' });
   $('#wrap', root).addEventListener('change', (e) => { S.prefs.wrap24 = e.target.checked; savePrefs(); });
   $('#hist', root)?.addEventListener('change', (e) => { S.prefs.history = e.target.checked; savePrefs(); renderSettings(); });
 }

@@ -4,7 +4,7 @@ import { S, esc, localGet, localSet, page, bindCopy, $ } from './core.js';
 import { I } from './icons.js';
 
 const KEY = 'tcalc.history', MAX = 100;
-const KINDS = { calc: 'Calculator', offset: 'Offset', convert: 'Convert', clips: 'Clips' };
+const KINDS = { calc: 'Calculator', offset: 'Offset', convert: 'Convert', clips: 'Clips', time: 'Time' };
 
 const getHistory = () => localGet(KEY, []);
 const historyOn = () => S.prefs.history && S.features.history !== false;

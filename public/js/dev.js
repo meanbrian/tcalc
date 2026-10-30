@@ -2,7 +2,7 @@
 // Maintenance + message, features on/off), Traffic (#/dev/traffic) and Events (#/dev/events), Sign Out.
 import { S, $, $$, esc, api, page, toast, localSet } from './core.js';
 
-const FEATURES = [['calc', 'Calculator'], ['offset', 'Offset'], ['convert', 'Convert'], ['clips', 'Clips'], ['history', 'History']];
+const FEATURES = [['calc', 'Calculator'], ['offset', 'Offset'], ['convert', 'Convert'], ['clips', 'Clips'], ['time', 'Time'], ['history', 'History']];
 const sw = (id, name, on, red = false) =>
   `<label class="row"><span class="rname${red ? ' red' : ''}">${esc(name)}</span><span class="switch"><input type="checkbox" data-sw="${id}"${on ? ' checked' : ''}><span></span></span></label>`;
 
