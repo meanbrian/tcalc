@@ -3,7 +3,7 @@
 import { RATES, rateById } from './timecode.js';
 import { I } from './icons.js';
 
-const APP_VERSION = '1.2.0'; // bump with each release; shown at the bottom of Settings
+const APP_VERSION = '1.2.1'; // bump with each release; shown at the bottom of Settings
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
