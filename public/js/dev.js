@@ -65,7 +65,7 @@ async function renderTraffic() {
     <h2 class="section-name">By day</h2>${table(t.days, ['Day', 'Views', 'IPs'], (r) => [r.day, r.views, r.ips])}
     <h2 class="section-name">Top IPs · 7 d</h2>${table(t.ips, ['IP', 'Where', 'Views', 'Last'], (r) => [r.ip, [r.city, r.country].filter(Boolean).join(', '), r.views, when(r.last_ts)])}
     <h2 class="section-name">Countries · 30 d</h2>${table(t.countries, ['Country', 'Views', 'IPs'], (r) => [r.country, r.views, r.ips])}
-    <h2 class="section-name">Last 100 hits</h2>${table(t.recent, ['When', 'IP', 'Where', 'Agent'], (r) => [when(r.ts), r.ip, [r.city, r.country].filter(Boolean).join(', '), r.ua])}
+    <h2 class="section-name">Last 100 hits</h2>${table(t.recent, ['When', 'App', 'IP', 'Where', 'Agent'], (r) => [when(r.ts), r.path === 'ios' ? 'iPhone' : 'Web', r.ip, [r.city, r.country].filter(Boolean).join(', '), r.ua])}
     <div class="group"><button type="button" class="row red center" id="clear">Clear Traffic Log</button></div>
     <p class="footnote">Visits are kept 30 days, then dropped by the nightly cron.</p>`;
   const root = page({ title: 'Traffic', body, back: '#/dev' });

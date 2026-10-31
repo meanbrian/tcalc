@@ -43,6 +43,11 @@ export default {
         checkOrigin(request, url);
         if (path.startsWith('/auth/')) return withHeaders((await handleAuth(request, env, path)) || json({ error: 'Not found' }, 404));
         if (path === '/api/config' && request.method === 'GET') return withHeaders(json(publicConfig(await getConfig(env))));
+        // The iPhone app asks this once per open: the switches, and a visit row (path 'ios') for Traffic.
+        if (path === '/api/app-open' && request.method === 'GET') {
+          ctx.waitUntil(logVisit(env, request, 'ios'));
+          return withHeaders(json(publicConfig(await getConfig(env))));
+        }
         if (path.startsWith('/api/dev/')) {
           if (!(await isDev(env, request))) return withHeaders(json({ error: 'Not signed in' }, 401));
           return withHeaders((await handleDev(request, env, path)) || json({ error: 'Not found' }, 404));

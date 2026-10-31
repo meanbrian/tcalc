@@ -28,6 +28,7 @@ async function setConfig(env, input) {
 }
 
 // What the public app may know: features and a maintenance note (never the dev state).
-const publicConfig = (c) => ({ features: c.features, maintenance: c.maintenance, message: c.maintenance || c.closed ? c.message : '' });
+// closed is shown too: the iPhone app has no page the Worker can swap, so it reads the switch and shows its own notice.
+const publicConfig = (c) => ({ features: c.features, closed: c.closed, maintenance: c.maintenance, message: c.maintenance || c.closed ? c.message : '' });
 
 export { FEATURES, getConfig, setConfig, publicConfig };

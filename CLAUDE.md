@@ -14,7 +14,7 @@ Read this map, then open only the file you need. Every file starts with a short 
 | `index.js` | Entry: security headers (`withHeaders`), Origin + `X-tcalc` check, dispatch, closed/maintenance gate on `/`, visit log, error catch, cron | |
 | `util.js` | `json`, `fail`, `HttpError`, `sha256`, `sameSecret`, `readJson`, `logEvent`, `cleanText`, `cleanBool` | |
 | `auth.js` | Dev sign-in (`DEV_USERNAME` + `DEV_SETUP_CODE`), sessions (hashed cookie), 10-strike lockout, `isDev()` | `/auth/dev-login`, `/auth/logout`, `/auth/me` |
-| `config.js` | `getConfig` / `setConfig`: closed, maintenance, message, features; `publicConfig` | `/api/config` (GET, public) |
+| `config.js` | `getConfig` / `setConfig`: closed, maintenance, message, features; `publicConfig` | `/api/config` (GET, public); `/api/app-open` (GET, iPhone app: same + a visit row, path `ios`) |
 | `visits.js` | `logVisit` (one row per page view), `visitStats` (one batch, all LIMITed), `clearVisits`, `purgeVisits` | |
 | `dev.js` | Dev tab API | `/api/dev/config` (GET/PUT), `/api/dev/traffic` (GET/DELETE), `/api/dev/events` |
 | `pages.js` | The Closed (410) and Under Maintenance (503) pages | |
@@ -73,3 +73,4 @@ Plain JavaScript modules, no build step. `index.html` loads `js/main.js`, which 
 - Security exceptions (playbook §11.1): none.
 - Maths lives only in `timecode.js` (frames) and `timespan.js` (calendar time); screens format, they don't calculate. Add a test when touching them.
 - Public app, so nothing a visitor types ever reaches the server; keep it that way.
+- The iPhone app (meanbrian/tcalc-ios) reads `/api/app-open`; keep its JSON shape (`features`, `closed`, `maintenance`, `message`) stable.

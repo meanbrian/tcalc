@@ -1,5 +1,5 @@
 // Offline shell: the calculator works with no signal. Network first, cache as fallback.
-const CACHE = 'tcalc-1.1.1';
+const CACHE = 'tcalc-1.2.0';
 // Keep this list in step with the files in public/js.
 const JS = ['main', 'core', 'icons', 'timecode', 'field', 'history', 'calc', 'offset', 'convert', 'clips', 'time', 'timespan', 'settings', 'dev', 'privacy'].map((f) => `/js/${f}.js`);
 const SHELL = ['/', '/index.html', '/styles.css', '/glass.css', ...JS, '/privacy.html', '/js/privacy-static.js', '/manifest.webmanifest', '/favicon.svg', '/icon-192.png'];
