@@ -47,6 +47,7 @@ Plain JavaScript modules, no build step. `index.html` loads `js/main.js`, which 
 | `glass.css` | Liquid Glass layer: tab bar, ‹ button, toast |
 | `_headers` | Security headers for static files (keep in step with `withHeaders` in `src/index.js`) |
 | `sw.js` | Offline cache. Its file list must match `public/js` |
+| `index.html` splash | `.splash` inside `#app` (styles.css): hidden 0.3 s, then fades in; the first render replaces it. Logo `splash-logo.png` (white +/− 0:01) |
 
 ## Data — D1 tables
 

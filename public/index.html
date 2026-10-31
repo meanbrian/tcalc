@@ -22,7 +22,8 @@
   <link rel="stylesheet" href="/glass.css">
 </head>
 <body>
-  <div id="app"></div>
+  <!-- Splash: shows only if loading takes longer than 0.3 s; the app replaces it as soon as it draws. -->
+  <div id="app"><div class="splash" aria-label="Loading tcalc" role="status"><img src="/splash-logo.png?v=1" alt="" width="160" height="160"></div></div>
   <div id="toast" role="status" aria-live="polite"></div>
   <script src="/js/main.js" type="module"></script>
 </body>
