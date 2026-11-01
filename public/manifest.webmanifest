@@ -1,6 +1,6 @@
 {
-  "name": "tcalc",
-  "short_name": "tcalc",
+  "name": "TCalc",
+  "short_name": "TCalc",
   "description": "Timecode and clip time calculator for editors",
   "start_url": "/",
   "scope": "/",

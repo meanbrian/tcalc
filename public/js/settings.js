@@ -24,8 +24,8 @@ function renderSettings() {
       ${S.features.history !== false ? switchRow('hist', 'green', I.history, 'Keep History', S.prefs.history) : ''}
       ${historyOn() ? row('#/settings/history', 'green', I.history, 'History') : ''}
     </div>
-    <div class="group">${row('#/settings/about', 'blue', I.info, 'About tcalc')}${row('#/settings/privacy', 'gray', I.shield, 'Privacy')}${S.dev ? row('#/dev', 'red', I.wrench, 'Developer') : ''}</div>
-    <p class="version">tcalc ${esc(APP_VERSION)} · made by meanbrian</p>`;
+    <div class="group">${row('#/settings/about', 'blue', I.info, 'About TCalc')}${row('#/settings/privacy', 'gray', I.shield, 'Privacy')}${S.dev ? row('#/dev', 'red', I.wrench, 'Developer') : ''}</div>
+    <p class="version">TCalc ${esc(APP_VERSION)} · made by meanbrian</p>`;
   const root = page({ title: 'Settings', body, back: S.lastTab || '#/' });
   $('#wrap', root).addEventListener('change', (e) => { S.prefs.wrap24 = e.target.checked; savePrefs(); });
   $('#hist', root)?.addEventListener('change', (e) => { S.prefs.history = e.target.checked; savePrefs(); renderSettings(); });
@@ -60,7 +60,7 @@ function renderAppearancePage() {
 
 function renderAboutPage() {
   const body = `<div class="group text">
-      <p>tcalc is a timecode and clip-time calculator for editors: add and subtract timecodes, find sync offsets and durations, convert between frame rates and speeds, and total up clip lists. Drop-frame (29.97 / 59.94 DF) follows the SMPTE rule.</p>
+      <p>TCalc is a timecode and clip-time calculator for editors: add and subtract timecodes, find sync offsets and durations, convert between frame rates and speeds, and total up clip lists. Drop-frame (29.97 / 59.94 DF) follows the SMPTE rule.</p>
       <p>Everything is worked out on your device. Nothing you type is sent anywhere; history and settings stay in this browser.</p>
       <p>Add it to your home screen and it works offline.</p>
       <p><a href="#/settings/privacy">Privacy</a> — what is and isn't kept.</p>

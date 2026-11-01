@@ -1,6 +1,6 @@
 # tcalc — code map
 
-Timecode and clip time calculator for editors at **tcalc.meanbrian.com**. One Cloudflare Worker serves the
+**TCalc** — timecode and clip time calculator for editors at **tcalc.meanbrian.com**. One Cloudflare Worker serves the
 static app (`public/`) and a small API (`src/`): a dev door, config switches, a visit log. **No user accounts**;
 every calculation runs in the browser. D1 holds only dev config, dev sessions, visits and events.
 Pushing to `main` deploys (Workers Builds). Built to the meanbrian dev playbook (meanbrian/dev-playbook).
