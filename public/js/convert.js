@@ -1,55 +1,82 @@
-// convert.js — Convert tab: one timecode (or frame count / seconds) shown as frames, seconds and a clock, then
-// at every other frame rate two ways: same frame count (re-timed / conformed) or same real time. Plus speed changes.
-import { S, $, $$, esc, rate, fmtOpts, page, rateBar, bindRateBar, resultCard, bindCopy } from './core.js';
+// convert.js — Convert tab (same as the iPhone app): a timecode (or frame count / seconds) at the From rate (the
+// shared dial) shown at the To rate (Convert's own, prefs.to), keeping the same frames (conform) or the same real
+// time; ⇄ swaps the rates and carries the answer over. Folded below: a speed change and the clip at every rate.
+import { S, $, $$, esc, rate, toRate, fmtOpts, savePrefs, page, resultCard, bindCopy } from './core.js';
+import { dial, bindDial } from './dial.js';
+import { fold, bindFolds, seg, bindSeg, modeKey } from './ui.js';
 import { tcInput, numInput, bindTcInputs, tcFrames, tcDigits } from './field.js';
 import { RATES, framesToTc, fmtTc, fmtFrames, fmtSec, fmtClock, framesToSeconds, secondsToFrames, sameTime, atSpeed } from './timecode.js';
 import { addHistory } from './history.js';
 
 const tcAt = (frames, r) => fmtTc(framesToTc(frames, r, fmtOpts()), r);
 
-function renderConvert() {
+function entryFrames() {
   const v = S.convert, r = rate();
-  let frames = null;
-  if (v.mode === 'tc' && v.tc) frames = tcFrames({ dataset: { d: v.tc } });
-  if (v.mode === 'frames' && v.tc !== '') frames = Math.round(Number(v.tc));
-  if (v.mode === 'seconds' && v.tc !== '') frames = secondsToFrames(Number(v.tc), r);
-  if (!Number.isFinite(frames)) frames = null;
-  const sec = frames === null ? 0 : framesToSeconds(frames, r);
-  const entry = v.mode === 'tc' ? tcInput('tc', v.tc, { label: `Timecode at ${r.label}` })
-    : numInput('tc', v.tc, { label: v.mode === 'frames' ? 'Frames' : 'Seconds', step: v.mode === 'frames' ? '1' : '0.001' });
-  const others = RATES.filter((x) => x.id !== r.id);
-  const body = `${rateBar()}
-    <div class="seg" role="group" aria-label="Entry type">${['tc', 'frames', 'seconds'].map((m) =>
-      `<button type="button" data-mode="${m}" aria-pressed="${v.mode === m}">${{ tc: 'Timecode', frames: 'Frames', seconds: 'Seconds' }[m]}</button>`).join('')}</div>
-    ${entry}
-    ${frames === null ? '<p class="footnote">Type a value and every conversion fills in below.</p>' : `
-    ${resultCard(tcAt(frames, r), [`${fmtFrames(frames)} frames`, fmtSec(sec), fmtClock(sec)], { label: `At ${r.label}` })}
-    <h2 class="section-name">Speed change</h2>
-    <div class="speedrow">${numInput('speed', v.speed, { label: 'Played at %', step: '1', min: 1 })}
-      ${resultCard(tcAt(atSpeed(frames, v.speed / 100), r), [`${fmtFrames(atSpeed(frames, v.speed / 100))} frames on the timeline`, fmtSec(framesToSeconds(atSpeed(frames, v.speed / 100), r))], { label: `${esc(v.speed)}% speed` })}</div>
-    <h2 class="section-name">At other frame rates</h2>
-    <div class="seg" role="group" aria-label="Conversion"><button type="button" data-how="frames" aria-pressed="${v.how !== 'time'}">Same frames</button><button type="button" data-how="time" aria-pressed="${v.how === 'time'}">Same time</button></div>
-    <p class="footnote">${v.how === 'time' ? 'The clip keeps its real length; frames are re-counted at the new rate.' : 'Every frame is kept (conform / re-time); the clip gets longer or shorter.'}</p>
-    <ul class="list">${others.map((x) => { const n = v.how === 'time' ? sameTime(frames, r, x) : frames; return `<li class="conv" data-copy="${tcAt(n, x)}" role="button" tabindex="0">
-      <span class="c-rate">${x.label}</span><span class="c-tc">${tcAt(n, x)}</span><span class="c-sub">${fmtFrames(n)} fr · ${fmtSec(framesToSeconds(n, x))}</span></li>`; }).join('')}</ul>`}`;
+  let n = null;
+  if (v.mode === 'tc' && v.tc) n = tcFrames({ dataset: { d: v.tc } });
+  if (v.mode === 'frames' && v.tc !== '') n = Math.round(Number(v.tc));
+  if (v.mode === 'seconds' && v.tc !== '') n = secondsToFrames(Number(v.tc), r);
+  return Number.isFinite(n) ? n : null;
+}
+const converted = (n) => (S.convert.how === 'time' ? sameTime(n, rate(), toRate()) : n);
+
+function renderConvert() {
+  const v = S.convert, r = rate(), to = toRate(), n = entryFrames();
+  const entry = v.mode === 'tc' ? tcInput('tc', v.tc) : numInput('tc', v.tc, { placeholder: v.mode === 'frames' ? 'Frames' : 'Seconds' });
+  const toOpts = [...RATES.map((x) => [x.id, x.label]), ['custom', `Custom (${S.prefs.custom})`]];
+  let result = '';
+  if (n !== null) {
+    const m = converted(n), s = framesToSeconds(m, to), sp = atSpeed(n, v.speed / 100);
+    result = `${resultCard(tcAt(m, to), [`${fmtFrames(m)} fr`, fmtSec(s), fmtClock(s)], { label: `At ${to.label}`, key: 'convert' })}
+      <p class="footnote center">At ${esc(r.label)}: ${fmtFrames(n)} fr · ${fmtSec(framesToSeconds(n, r))} · ${v.how === 'time' ? 'real length kept' : 'every frame kept'}</p>
+      ${fold('convert-speed', 'Speed change', `${numInput('speed', v.speed, { label: 'Played at %', min: 1 })}
+        ${resultCard(tcAt(sp, r), [`${fmtFrames(sp)} fr`, fmtSec(framesToSeconds(sp, r))], { label: 'On the timeline', wide: true })}`)}
+      ${fold('convert-all', 'All frame rates', `<ul class="rows">${RATES.filter((x) => x.id !== r.id).map((x) => {
+        const k = v.how === 'time' ? sameTime(n, r, x) : n;
+        return `<li data-copy="${tcAt(k, x)}" role="button" tabindex="0"><span>${x.label}</span><b>${tcAt(k, x)}</b></li>`; }).join('')}</ul>`)}`;
+  }
+  const body = `${dial()}
+    <div class="entryrow">${modeKey(v.mode)}${entry}</div>
+    <div class="ratepair">
+      <div class="rp-side"><small>FROM</small><b>${esc(r.label)}</b></div>
+      <button type="button" class="swap" aria-label="Swap frame rates">⇄</button>
+      <label class="rp-side to"><small>TO ⌃⌄</small><b>${esc(to.label)}</b>
+        <select name="to" aria-label="To frame rate">${toOpts.map(([id, l]) => `<option value="${id}"${id === S.prefs.to ? ' selected' : ''}>${esc(l)}</option>`).join('')}</select></label>
+    </div>
+    ${seg('how', [['frames', 'Same frames'], ['time', 'Same time']], v.how)}
+    ${result}`;
   const root = page({ title: 'Convert', body, gear: true });
-  bindRateBar(root, renderConvert);
+  bindDial(root, renderConvert);
   bindCopy(root);
+  bindFolds(root);
   bindTcInputs(root, (name, input) => {
     if (name === 'tc') v.tc = v.mode === 'tc' ? tcDigits(input) : input.value;
     if (name === 'speed') v.speed = Math.max(1, Number(input.value) || 1);
     update(name);
   });
-  $$('.seg button[data-mode]', root).forEach((b) => b.addEventListener('click', () => { v.mode = b.dataset.mode; v.tc = ''; renderConvert(); }));
-  $$('.seg button[data-how]', root).forEach((b) => b.addEventListener('click', () => { v.how = b.dataset.how; renderConvert(); }));
-  if (frames !== null) addHistory('convert', `${tcAt(frames, r)} @ ${r.label}`, `${fmtFrames(frames)} fr · ${fmtSec(sec)}`);
+  $('select[name="mode"]', root).addEventListener('change', (e) => { v.mode = e.target.value; v.tc = ''; renderConvert(); });
+  $('select[name="to"]', root).addEventListener('change', (e) => { S.prefs.to = e.target.value; savePrefs(); renderConvert(); });
+  $('.swap', root).addEventListener('click', swap);
+  bindSeg(root, 'how', (how) => { v.how = how; renderConvert(); });
+  if (n !== null) addHistory('convert', `${tcAt(n, r)} @ ${r.label} → ${to.label}`, tcAt(converted(n), to));
+}
+
+// To becomes From (the dial moves) and the answer becomes the new entry.
+function swap() {
+  const v = S.convert, n = entryFrames(), m = n === null ? null : converted(n);
+  [S.prefs.rate, S.prefs.to] = [S.prefs.to, S.prefs.rate];
+  savePrefs();
+  if (m !== null && v.mode === 'tc') v.tc = tcAt(m, rate()).replace(/\D/g, '').replace(/^0+/, '');
+  if (m !== null && v.mode === 'frames') v.tc = String(m);
+  renderConvert();
 }
 
 function update(name) {
-  const el = $(`[name="${name}"]`), pos = el?.selectionStart;
+  const el = $(`[name="${name}"]`), pos = el?.selectionStart, top = scrollY;
   renderConvert();
   const again = $(`[name="${name}"]`);
-  if (again) { again.focus(); if (again.classList.contains('numin') && pos) try { again.setSelectionRange(pos, pos); } catch {} }
+  if (again) { again.focus({ preventScroll: true }); if (again.classList.contains('numin') && pos) try { again.setSelectionRange(pos, pos); } catch {} }
+  scrollTo(0, top);
 }
 
 export { renderConvert };

@@ -1,6 +1,8 @@
-// clips.js — Clips tab: three editor helpers. Fit: how many clips of one length fit a total. Runtime: paste a
+// clips.js — Clips tab: three editor helpers, one at a time (Fit · Runtime · Handles). Fit: how many clips of one length fit a total. Runtime: paste a
 // list of durations, get the total. Handles: in/out plus handle frames gives the padded in/out and length.
-import { S, $, $$, esc, rate, fmtOpts, page, rateBar, bindRateBar, resultCard, bindCopy } from './core.js';
+import { S, $, esc, rate, fmtOpts, page, resultCard, bindCopy } from './core.js';
+import { dial, bindDial } from './dial.js';
+import { seg, bindSeg } from './ui.js';
 import { tcInput, numInput, bindTcInputs, tcFrames, tcDigits } from './field.js';
 import { framesToTc, fmtTc, fmtFrames, fmtSec, fmtClock, framesToSeconds, strToFrames } from './timecode.js';
 import { addHistory } from './history.js';
@@ -21,24 +23,24 @@ function renderClips() {
   const inF = fr(c.inTc), outF = fr(c.outTc), h = Math.max(0, Math.round(Number(c.handle) || 0));
   const hand = inF !== null && outF !== null ? { in: inF - h, out: outF + h, len: outF - inF, padded: outF - inF + 2 * h } : null;
 
-  const body = `${rateBar()}
-    <h2 class="section-name">How many fit</h2>
-    <div class="pair">${tcInput('clip', c.clip, { label: 'Clip length' })}${tcInput('total', c.total, { label: 'Total length' })}</div>
-    ${fit ? resultCard(`${fit.n} clip${fit.n === 1 ? '' : 's'}`, [`${tc(fit.rest)} left over (${fmtFrames(fit.rest)} fr)`, `${fit.n} × ${tc(clip)}`], { label: 'Fit' }) : ''}
-    <h2 class="section-name">Total runtime</h2>
-    <label class="field"><span>One duration per line</span><textarea name="list" rows="5" placeholder="00:01:23:05&#10;00:00:42:12&#10;2:30:00">${esc(c.list)}</textarea></label>
-    ${parsed.length ? resultCard(tc(sum), [`${parsed.length} clip${parsed.length === 1 ? '' : 's'} · ${fmtFrames(sum)} fr`, fmtClock(framesToSeconds(sum, r)), `average ${tc(Math.round(sum / parsed.length))}`], { label: 'Runtime' }) : ''}
-    <h2 class="section-name">Handles</h2>
-    <div class="pair">${tcInput('inTc', c.inTc, { label: 'In' })}${tcInput('outTc', c.outTc, { label: 'Out' })}</div>
-    ${numInput('handle', c.handle, { label: 'Handle frames each side', min: 0 })}
-    ${hand ? resultCard(`${tc(hand.in)} – ${tc(hand.out)}`, [`${tc(hand.padded)} with handles (${fmtFrames(hand.padded)} fr)`, `${tc(hand.len)} without (${fmtFrames(hand.len)} fr)`, fmtSec(framesToSeconds(hand.padded, r))], { label: 'With handles', wide: true }) : ''}`;
+  const tools = {
+    fit: `<div class="pair">${tcInput('clip', c.clip, { label: 'Clip length' })}${tcInput('total', c.total, { label: 'Total length' })}</div>
+      ${fit ? resultCard(`${fit.n} clip${fit.n === 1 ? '' : 's'}`, [`${tc(fit.rest)} left over`], { label: 'Fit' }) : ''}`,
+    runtime: `<label class="field"><span>One duration per line</span><textarea name="list" rows="5" placeholder="00:01:23:05&#10;00:00:42:12&#10;2:30:00">${esc(c.list)}</textarea></label>
+      ${parsed.length ? resultCard(tc(sum), [`${parsed.length} clip${parsed.length === 1 ? '' : 's'} · ${fmtFrames(sum)} fr`, fmtClock(framesToSeconds(sum, r)), `average ${tc(Math.round(sum / parsed.length))}`], { label: 'Runtime' }) : ''}`,
+    handles: `<div class="pair">${tcInput('inTc', c.inTc, { label: 'In' })}${tcInput('outTc', c.outTc, { label: 'Out' })}</div>
+      ${numInput('handle', c.handle, { label: 'Handle frames each side', min: 0 })}
+      ${hand ? resultCard(`${tc(hand.in)} – ${tc(hand.out)}`, [`${tc(hand.padded)} with handles (${fmtFrames(hand.padded)} fr)`, `${tc(hand.len)} without`, fmtSec(framesToSeconds(hand.padded, r))], { label: 'With handles', wide: true }) : ''}`,
+  };
+  const body = `${dial()}${seg('tool', [['fit', 'Fit'], ['runtime', 'Runtime'], ['handles', 'Handles']], c.tool)}${tools[c.tool] || tools.fit}`;
   const root = page({ title: 'Clips', body, gear: true });
-  bindRateBar(root, renderClips);
+  bindDial(root, renderClips);
+  bindSeg(root, 'tool', (t) => { c.tool = t; renderClips(); });
   bindCopy(root);
   bindTcInputs(root, (name, input) => { c[name] = input.classList.contains('tcin') ? tcDigits(input) : input.value; update(name); });
-  $('textarea[name="list"]', root).addEventListener('input', (e) => { c.list = e.target.value; update('list'); });
-  if (fit) addHistory('clips', `${tc(total)} ÷ ${tc(clip)}`, `${fit.n} clips, ${tc(fit.rest)} over`);
-  if (parsed.length > 1) addHistory('clips', `${parsed.length} clips`, tc(sum));
+  $('textarea[name="list"]', root)?.addEventListener('input', (e) => { c.list = e.target.value; update('list'); });
+  if (fit && c.tool === 'fit') addHistory('clips', `${tc(total)} ÷ ${tc(clip)}`, `${fit.n} clips, ${tc(fit.rest)} over`);
+  if (parsed.length > 1 && c.tool === 'runtime') addHistory('clips', `${parsed.length} clips`, tc(sum));
 }
 
 function update(name) {

@@ -29,15 +29,17 @@ Plain JavaScript modules, no build step. `index.html` loads `js/main.js`, which 
 | File | Screen / job |
 | --- | --- |
 | `js/main.js` | Start here: hash router, tab bar (Calc · Offset · Convert · Clips · Time; hides switched-off features; Settings is the ⚙ at the top), boot (`/api/config`, `/auth/me`), SW |
-| `js/core.js` | Shared: state `S`, prefs (localStorage `tcalc.prefs`), `rate()`, `api()`, `toast`, `copyText`, theme, `rateBar`, `page`, `resultCard`, `APP_VERSION` |
+| `js/core.js` | Shared: state `S`, prefs (localStorage `tcalc.prefs`: `rate` = the dial, `to` = Convert's To rate), `rate()`, `toRate()`, `api()`, `toast`, `copyText`, theme, `page` (tabs: small centred title + ⚙), `rollHtml` (changed digits roll in), `resultCard`, `APP_VERSION` |
+| `js/dial.js` | Frame-rate dial pinned on the timecode tabs (same as the iPhone app): scroll-snap wheel, tap to jump, ← / →, Custom (tap again to type fps) |
+| `js/ui.js` | `fold` (details that remember being open), `seg` (segmented picker), `modeKey` (TC / FR / SEC over a native select) |
 | `js/timecode.js` | Pure maths: rates, parse, drop-frame, frames ↔ tc ↔ seconds, conversions, formatting (tests in `test/`) |
 | `js/field.js` | Timecode entry field (digits shift in from the right) + number field; `bindTcInputs`, `tcFrames` |
 | `js/history.js` | Recent results in localStorage (`tcalc.history`, last 100); History page |
-| `js/calc.js` | Calc tab: running tape of ± timecodes / frames / seconds |
-| `js/offset.js` | Offset tab: B − A as ± frames / seconds / tc, apply the offset to a third tc |
-| `js/convert.js` | Convert tab: frames / seconds / clock, speed change, every other rate (same frames or same time) |
-| `js/clips.js` | Clips tab: how many fit, total runtime of a pasted list, handles |
-| `js/time.js` | Time tab (no frame rate): decimal value in any unit → breakdown + totals, between two dates, since/until (live), date ± duration, unix epoch |
+| `js/calc.js` | Calc tab, like Apple's Calculator: display (tape, entry or total, rolling digits; tap = copy) over a keypad (Mac number-pad layout); `10 − 3 =`; real keyboard works too |
+| `js/offset.js` | Offset tab: From → To as ± frames / tc / seconds; fold: apply to another clip |
+| `js/convert.js` | Convert tab: From (dial) → To (`prefs.to`) with ⇄ swap (carries the answer over), Same frames / Same time; folds: speed change, all rates |
+| `js/clips.js` | Clips tab, one tool at a time: Fit · Runtime (pasted list) · Handles |
+| `js/time.js` | Time tab (no frame rate), one tool at a time: Units · Span · Since (live) · ± Date · Epoch |
 | `js/timespan.js` | Pure time maths: units ↔ ms, `breakdown`, `calendarDiff` (clamped month stepping), `addToDate`, epoch, formatting (tests in `test/`) |
 | `js/settings.js` | Settings (house style) + pages: Frame Rate, Appearance, About |
 | `js/privacy.js` | The privacy text (once) + Settings › Privacy page; `privacy-static.js` draws `/privacy.html` (linked from Closed / Maintenance) |
@@ -73,5 +75,6 @@ Plain JavaScript modules, no build step. `index.html` loads `js/main.js`, which 
 - Keep files small (~300 lines); update this map in the same commit as any new file or route.
 - Security exceptions (playbook §11.1): none.
 - Maths lives only in `timecode.js` (frames) and `timespan.js` (calendar time); screens format, they don't calculate. Add a test when touching them.
+- Same design as the iPhone app (meanbrian/tcalc-ios): one frame rate for every tab (the dial), only Convert has a second (To) rate; one main input and one big answer per screen, extras folded.
 - Public app, so nothing a visitor types ever reaches the server; keep it that way.
 - The iPhone app (meanbrian/tcalc-ios) reads `/api/app-open`; keep its JSON shape (`features`, `closed`, `maintenance`, `message`) stable.

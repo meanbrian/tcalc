@@ -1,6 +1,7 @@
-// time.js — Time tab (no frame rate): a decimal in any unit broken down and totalled, between two dates,
+// time.js — Time tab (no frame rate), one tool at a time: a decimal in any unit broken down and totalled, between two dates,
 // since / until a date (live), date ± duration, and unix epoch ↔ date. Maths in timespan.js.
 import { S, $, $$, esc, page, resultCard, bindCopy } from './core.js';
+import { seg, bindSeg } from './ui.js';
 import { numInput } from './field.js';
 import { UNITS, unitById, toMs, breakdown, calendarDiff, addToDate, epochToDate, fmtParts, fmtNum, fmtHms, fmtDate, toLocalInput, parseLocalInput } from './timespan.js';
 import { addHistory } from './history.js';
@@ -26,40 +27,32 @@ function renderTime() {
   // 5 · epoch
   const ep = Number(t.epoch), epDate = t.epoch !== '' && Number.isFinite(ep) ? epochToDate(ep) : null;
 
-  const body = `
-    <h2 class="section-name">Convert a value</h2>
-    <div class="unitrow">${numInput('value', t.value, { label: 'Amount', step: '0.01' })}<label class="field"><span>Unit</span>${unitPick('unit', t.unit)}</label></div>
-    ${vMs === null ? '<p class="footnote">1.23 years, 1.97 hours, 99282 days — type a decimal and pick its unit.</p>'
-      : `${resultCard(fmtParts(breakdown(vMs)), [fmtHms(vMs)], { label: `${esc(t.value)} ${unitById(t.unit).label.toLowerCase()} is`, wide: true })}${totalsList(vMs)}`}
-
-    <h2 class="section-name">Between two dates</h2>
-    ${dateInput('a', t.a, 'From')}${dateInput('b', t.b, 'To')}
-    ${diff ? `${resultCard(fmtParts(diff), [`${fmtNum(diff.totalMs / 86400000, 2)} days`, `${fmtNum(diff.months)} months and ${diff.d} days`, fmtHms(diff.totalMs)], { label: diff.neg ? 'Earlier by' : 'Apart', wide: true })}${totalsList(diff.totalMs)}` : ''}
-
-    <h2 class="section-name">Since · Until</h2>
-    ${dateInput('since', t.since, 'Date')}
-    <div id="live"></div>
-
-    <h2 class="section-name">Date ± duration</h2>
-    ${dateInput('base', t.base, 'Start')}
-    <div class="unitrow three"><div class="seg sign" role="group"><button type="button" data-sign="+" aria-pressed="${t.sign !== '-'}">+</button><button type="button" data-sign="-" aria-pressed="${t.sign === '-'}">−</button></div>
-      ${numInput('plus', t.plus, { label: 'Amount', step: '0.01' })}<label class="field"><span>Unit</span>${unitPick('plusUnit', t.plusUnit)}</label></div>
-    ${moved ? resultCard(fmtDate(moved), [moved.toLocaleDateString([], { weekday: 'long' }), `${fmtNum(Math.abs(moved - base) / 86400000, 2)} days ${moved < base ? 'earlier' : 'later'}`], { label: 'Lands on', wide: true }) : ''}
-
-    <h2 class="section-name">Unix epoch</h2>
-    ${numInput('epoch', t.epoch, { label: 'Seconds or milliseconds since 1970', step: '1' })}
-    ${epDate ? resultCard(fmtDate(epDate), [epDate.toISOString(), `${epDate.getTime() / 1000} s · ${epDate.getTime()} ms`], { label: 'Local time', wide: true }) : ''}
-    <div class="row end"><button type="button" class="btn small" id="now">Now</button></div>`;
+  const tools = {
+    units: `<div class="unitrow">${numInput('value', t.value, { label: 'Amount', step: '0.01' })}<label class="field"><span>Unit</span>${unitPick('unit', t.unit)}</label></div>
+      ${vMs === null ? '<p class="footnote center">e.g. 1.97 hours or 1.23 years</p>'
+        : `${resultCard(fmtParts(breakdown(vMs)), [fmtHms(vMs)], { label: `${esc(t.value)} ${unitById(t.unit).label.toLowerCase()} is`, wide: true })}${totalsList(vMs)}`}`,
+    between: `${dateInput('a', t.a, 'From')}${dateInput('b', t.b, 'To')}
+      ${diff ? `${resultCard(fmtParts(diff), [`${fmtNum(diff.totalMs / 86400000, 2)} days`, `${fmtNum(diff.months)} months and ${diff.d} days`, fmtHms(diff.totalMs)], { label: diff.neg ? 'Earlier by' : 'Apart', wide: true })}${totalsList(diff.totalMs)}` : ''}`,
+    since: `${dateInput('since', t.since, 'Date')}<div id="live"></div>`,
+    add: `${dateInput('base', t.base, 'Start')}
+      <div class="unitrow three"><div class="seg sign" role="group"><button type="button" data-sign="+" aria-pressed="${t.sign !== '-'}">+</button><button type="button" data-sign="-" aria-pressed="${t.sign === '-'}">−</button></div>
+        ${numInput('plus', t.plus, { label: 'Amount', step: '0.01' })}<label class="field"><span>Unit</span>${unitPick('plusUnit', t.plusUnit)}</label></div>
+      ${moved ? resultCard(fmtDate(moved), [moved.toLocaleDateString([], { weekday: 'long' }), `${fmtNum(Math.abs(moved - base) / 86400000, 2)} days ${moved < base ? 'earlier' : 'later'}`], { label: 'Lands on', wide: true }) : ''}`,
+    epoch: `<div class="unitrow">${numInput('epoch', t.epoch, { label: 'Unix time (s or ms)', step: '1' })}<div class="field end"><button type="button" class="btn" id="now">Now</button></div></div>
+      ${epDate ? resultCard(fmtDate(epDate), [epDate.toISOString(), `${epDate.getTime() / 1000} s · ${epDate.getTime()} ms`], { label: 'Local time', wide: true }) : ''}`,
+  };
+  const body = `${seg('tool', [['units', 'Units'], ['between', 'Span'], ['since', 'Since'], ['add', '± Date'], ['epoch', 'Epoch']], t.tool)}${tools[t.tool] || tools.units}`;
   const root = page({ title: 'Time', body, gear: true });
   bindCopy(root);
   $$('.numin', root).forEach((i) => i.addEventListener('input', () => { t[i.name] = i.value; update(i.name); }));
   $$('input[type="datetime-local"]', root).forEach((i) => i.addEventListener('change', () => { t[i.name] = i.value; update(i.name); }));
   $$('.unitsel', root).forEach((s) => s.addEventListener('change', () => { t[s.name] = s.value; update(s.name); }));
   $$('.sign button', root).forEach((b) => b.addEventListener('click', () => { t.sign = b.dataset.sign; renderTime(); }));
-  $('#now', root).addEventListener('click', () => { t.epoch = String(Math.floor(Date.now() / 1000)); renderTime(); });
+  bindSeg(root, 'tool', (x) => { t.tool = x; renderTime(); });
+  $('#now', root)?.addEventListener('click', () => { t.epoch = String(Math.floor(Date.now() / 1000)); renderTime(); });
   startLive();
-  if (vMs !== null) addHistory('time', `${t.value} ${unitById(t.unit).label.toLowerCase()}`, fmtParts(breakdown(vMs)));
-  if (diff) addHistory('time', `${fmtDate(a)} → ${fmtDate(b)}`, fmtParts(diff));
+  if (vMs !== null && t.tool === 'units') addHistory('time', `${t.value} ${unitById(t.unit).label.toLowerCase()}`, fmtParts(breakdown(vMs)));
+  if (diff && t.tool === 'between') addHistory('time', `${fmtDate(a)} → ${fmtDate(b)}`, fmtParts(diff));
 }
 
 // Since / Until: redraws its own card every second without touching the rest of the page.
